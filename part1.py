@@ -12,13 +12,43 @@ import os
 import pandas as pd
 
 def main():
-    malware()
+    nsl()
 
 ### NSL-KDD
 def nsl():
-    nsldata = arff.loadarff('data/nsl/KDDTrain+.arff')
-    nsldf = pd.DataFrame(nsldata[0]).infer_objects()
-    print(nsldf.dtypes)
+    nsldata_train = arff.loadarff('data/nsl/KDDTrain+.arff')
+    nsldf_train = pd.DataFrame(nsldata_train[0]).infer_objects()
+
+    nsldata_test = arff.loadarff('data/nsl/KDDTest+.arff')
+    nsldf_test = pd.DataFrame(nsldata_test[0]).infer_objects()
+
+    # Normalise & Standardise
+    train_norm = pd.DataFrame()
+    test_norm = pd.DataFrame()
+    for k,v in nsldf_train.dtypes.items():
+        if k == 'class':
+            train_norm[k] = nsldf_train[k].astype('category')
+            test_norm[k] = nsldf_test[k].astype('category')
+        elif str(v) == 'float64':
+            mean = nsldf_train[k].mean()
+            std = nsldf_train[k].std()
+            if std != 0:
+                train_norm[k] = (nsldf_train[k] - mean)/std
+                test_norm[k] = (nsldf_test[k] - mean)/std
+        else:
+            onehottrain = pd.get_dummies(nsldf_train[k])
+            onehottest = pd.get_dummies(nsldf_test[k])
+
+            onehottrain.columns = [k + '_' + c.decode('utf-8') for c in onehottrain.columns]
+            onehottest.columns = [k + '_' + c.decode('utf-8') for c in onehottest.columns]
+
+            for col in (onehottrain.columns.symmetric_difference(onehottest.columns)):
+                onehottest[col] = 0
+            train_norm = train_norm.join(onehottrain)
+            test_norm = test_norm.join(onehottest)
+    print(train_norm.columns)
+    assert(train_norm.shape[1] == test_norm.shape[1]) # Make sure columns line up
+
 
 ### Microsoft Malware
 # Classes
