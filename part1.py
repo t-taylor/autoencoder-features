@@ -7,12 +7,13 @@
 from pyparsing import Word, hexnums, WordEnd, Optional, alphas, alphanums
 from scipy.io import arff
 import collections
+import csv
 import math
 import os
 import pandas as pd
 
 def main():
-    nsl()
+    malware()
 
 ### NSL-KDD
 def nsl():
@@ -63,19 +64,18 @@ def nsl():
 # 9 Gatak
 
 def aimf(entry):
-    aimf = dict([(i,0) for i in range(256)])
+    aimfd = dict([(i,0) for i in range(256)])
     with open(entry.path, encoding = 'ISO-8859-1') as f:
         source = f.readlines()
         hex_integer = Word(hexnums) + WordEnd() # use WordEnd to avoid parsing leading a-f of non-hex numbers as a hex
         line = '.text:' + hex_integer + Optional((hex_integer*(1,))('instructions') + Word(alphas,alphanums)('opcode'))
         for source_line in source:
-            if 'text' not in source_line:
-                break;
-            result = line.parseString(source_line)
-            if 'opcode' in result:
-                aimf[int(result.instructions.asList()[0], 16)] += 1
+            if source_line.startswith('.text:'):
+                result = line.parseString(source_line)
+                if 'opcode' in result:
+                    aimfd[int(result.instructions.asList()[0], 16)] += 1
 
-    d = dict(collections.Counter(aimf))
+    d = dict(collections.Counter(aimfd))
     return d
 
 def unigram(entry):
@@ -84,14 +84,19 @@ def unigram(entry):
 
 def malware():
     labels = pd.read_csv('data/mal/trainLabels.csv')
-    XY = pd.DataFrame()
-    #for entry in os.scandir('data/mal/train'):
-    for entry in os.scandir('data/mal/datasample'):
-        if entry.name.endswith('.asm'):
-            typeclass = labels[labels['Id'] == os.path.splitext(entry.name)[0]].iloc[0]['Class']
-            XY = XY.append({'class':typeclass}|unigram(entry), ignore_index=True)
-
-    print(XY)
+    files = os.scandir('data/mal/datasample')
+    #files = os.scandir('data/mal/train')
+    i = 0
+    with open('data/mal/train.csv', 'w') as traincsv:
+        trainwrite = csv.writer(traincsv)
+        trainwrite.writerow([x for x in range(256)] + ['class'])
+        for entry in files:
+            print(i, entry.name)
+            i += 1
+            if entry.name.endswith('.asm'):
+                typeclass = labels[labels['Id'] == os.path.splitext(entry.name)[0]].iloc[0]['Class']
+                d = unigram(entry)|{'class':typeclass}
+                trainwrite.writerow(d.values())
 
 if __name__ == '__main__':
     main()
