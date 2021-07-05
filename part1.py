@@ -12,11 +12,26 @@ import math
 import os
 import pandas as pd
 
+_txtheaders =['duration', 'protocol_type', 'service', 'flag', 'src_bytes',
+              'dst_bytes', 'land', 'wrong_fragment', 'urgent', 'hot',
+              'num_failed_logins', 'logged_in', 'num_compromised',
+              'root_shell', 'su_attempted', 'num_root', 'num_file_creations',
+              'num_shells', 'num_access_files', 'num_outbound_cmds',
+              'is_host_login', 'is_guest_login', 'count', 'srv_count',
+              'serror_rate', 'srv_serror_rate', 'rerror_rate',
+              'srv_rerror_rate', 'same_srv_rate', 'diff_srv_rate',
+              'srv_diff_host_rate', 'dst_host_count', 'dst_host_srv_count',
+              'dst_host_same_srv_rate', 'dst_host_diff_srv_rate',
+              'dst_host_same_src_port_rate', 'dst_host_srv_diff_host_rate',
+              'dst_host_serror_rate', 'dst_host_srv_serror_rate',
+              'dst_host_rerror_rate', 'dst_host_srv_rerror_rate', 'class',
+              'difficulty']
+
 def main():
-    malware()
+    nsl_explore()
 
 ### NSL-KDD
-def nsl():
+def nsl_binary():
     nsldata_train = arff.loadarff('data/nsl/KDDTrain+.arff')
     nsldf_train = pd.DataFrame(nsldata_train[0]).infer_objects()
 
@@ -47,8 +62,45 @@ def nsl():
                 onehottest[col] = 0
             train_norm = train_norm.join(onehottrain)
             test_norm = test_norm.join(onehottest)
-    print(train_norm.columns)
     assert(train_norm.shape[1] == test_norm.shape[1]) # Make sure columns line up
+    return (train_norm, test_norm)
+
+def nsl_multiclass():
+    nsldf_train = pd.read_csv('data/nsl/KDDTrain+.txt', names=_txtheaders)
+
+    nsldf_test = pd.read_csv('data/nsl/KDDTest+.txt', names=_txtheaders)
+
+    # Normalise & Standardise
+    train_norm = pd.DataFrame()
+    test_norm = pd.DataFrame()
+    for k,v in nsldf_train.dtypes.items():
+        if k == 'class' or k == 'difficulty':
+            train_norm[k] = nsldf_train[k].astype('category')
+            test_norm[k] = nsldf_test[k].astype('category')
+        elif str(v) == 'object':
+            onehottrain = pd.get_dummies(nsldf_train[k])
+            onehottest = pd.get_dummies(nsldf_test[k])
+
+            onehottrain.columns = [k + '_' + c for c in onehottrain.columns]
+            onehottest.columns = [k + '_' + c for c in onehottest.columns]
+
+            for col in (onehottrain.columns.symmetric_difference(onehottest.columns)):
+                onehottest[col] = 0
+            train_norm = train_norm.join(onehottrain)
+            test_norm = test_norm.join(onehottest)
+        else:
+            mean = nsldf_train[k].mean()
+            std = nsldf_train[k].std()
+            if std != 0:
+                train_norm[k] = (nsldf_train[k] - mean)/std
+                test_norm[k] = (nsldf_test[k] - mean)/std
+
+    assert(train_norm.shape[1] == test_norm.shape[1]) # Make sure columns line up
+    return (train_norm, test_norm)
+
+def nsl_explore():
+    (train, test) = nsl_multiclass()
+    print('types of attack', list(train['class'].astype('category').cat.categories))
 
 
 ### Microsoft Malware
@@ -69,11 +121,16 @@ def aimf(entry):
         source = f.readlines()
         hex_integer = Word(hexnums) + WordEnd() # use WordEnd to avoid parsing leading a-f of non-hex numbers as a hex
         line = '.text:' + hex_integer + Optional((hex_integer*(1,))('instructions') + Word(alphas,alphanums)('opcode'))
+        i = 0
         for source_line in source:
+            i += 1
+            print(i)
             if source_line.startswith('.text:'):
+                #print(source_line)
                 result = line.parseString(source_line)
                 if 'opcode' in result:
-                    aimfd[int(result.instructions.asList()[0], 16)] += 1
+                    if len(result.instructions.asList()[0]) == 2:
+                        aimfd[int(result.instructions.asList()[0], 16)] += 1
 
     d = dict(collections.Counter(aimfd))
     return d
@@ -83,7 +140,7 @@ def unigram(entry):
     return {k:1 + math.log(v) if v != 0 else 0 for k, v in aimf_res.items()}
 
 def malware():
-    labels = pd.read_csv('data/mal/trainLabels.csv')
+    labels = pd.read_csv('data/mal/testLabels.csv')
     files = os.scandir('data/mal/datasample')
     #files = os.scandir('data/mal/train')
     i = 0
@@ -91,7 +148,7 @@ def malware():
         trainwrite = csv.writer(traincsv)
         trainwrite.writerow([x for x in range(256)] + ['class'])
         for entry in files:
-            print(i, entry.name)
+            print(i, i / 21737, entry.name)
             i += 1
             if entry.name.endswith('.asm'):
                 typeclass = labels[labels['Id'] == os.path.splitext(entry.name)[0]].iloc[0]['Class']
@@ -100,3 +157,4 @@ def malware():
 
 if __name__ == '__main__':
     main()
+
