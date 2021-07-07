@@ -2,7 +2,6 @@
 # * Importing datasets
 # * Feature analysis
 # * Normalisation and Standardization
-# * Training & testing without autoencoder (?)
 
 from pyparsing import Word, hexnums, WordEnd, Optional, alphas, alphanums
 from scipy.io import arff
