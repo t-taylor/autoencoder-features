@@ -58,3 +58,15 @@ class CVAE(tf.keras.Model):
       probs = tf.sigmoid(logits)
       return probs
     return logits
+
+
+def dense_network(feaures):
+    model = tf.keras.Sequential([tf.keras.layers.DenseFeatures(feaures),
+                                 tf.keras.layers.Dense(128, activation='relu'),
+                                 tf.keras.layers.Dense(128, activation='relu'),
+                                 tf.keras.layers.Dropout(.1),
+                                 tf.keras.layers.Dense(1)])
+    model.compile(optimizer='adam',
+                  loss='categorical_crossentropy',
+                  metrics=['accuracy'])
+    return model

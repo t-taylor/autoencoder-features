@@ -154,6 +154,9 @@ def malware():
                 d = unigram(entry)|{'class':typeclass}
                 trainwrite.writerow(d.values())
 
+def malware_df():
+    return pd.read_csv('data/mal/train.csv')
+
 if __name__ == '__main__':
     main()
 
