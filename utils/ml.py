@@ -59,14 +59,27 @@ class CVAE(tf.keras.Model):
       return probs
     return logits
 
+def dense_model(inlen, outlen):
+    model = tf.keras.Sequential()
+    model.add(tf.keras.layers.Dense(inlen, input_dim=inlen, activation='relu'))
+    model.add(tf.keras.layers.Dense(outlen, activation='softmax'))
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    return lambda: model
 
-def dense_network(feaures):
-    model = tf.keras.Sequential([tf.keras.layers.DenseFeatures(feaures),
-                                 tf.keras.layers.Dense(128, activation='relu'),
-                                 tf.keras.layers.Dense(128, activation='relu'),
-                                 tf.keras.layers.Dropout(.1),
-                                 tf.keras.layers.Dense(1)])
-    model.compile(optimizer='adam',
-                  loss='categorical_crossentropy',
-                  metrics=['accuracy'])
-    return model
+def generate_models(train, test):
+    methods = ['bayesian', 'svm', 'neural_net', 'decision_tree']
+    outputs = {}
+    for method in methods:
+        if method == 'bayesian':
+            # TODO
+            outputs[method] == 'some_model'
+        if method == 'svm':
+            # TODO
+            outputs[method] == 'some_model'
+        if method == 'neural_net':
+            # TODO
+            outputs[method] == 'some_model'
+        if method == 'decision_tree':
+            # TODO
+            outputs[method] == 'some_model'
+
