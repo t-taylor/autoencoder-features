@@ -51,11 +51,11 @@ def main():
 
     inputs = dr.dimentional_reductions(train, test)
 
-    for dimred, (train, test) in inputs.items():
-        models = ml.generate_models(train, test)
+    for dimred, (X_train, Y_train, X_test, Y_test) in inputs.items():
+        models = ml.generate_models(X_train, Y_train)
 
         for modeltype, model in models.items():
-            metrics = ev.get_metrics(model, test)
+            metrics = ev.get_metrics(model, X_test, Y_test)
             # Then write results to csv TODO
 
 if __name__ == '__main__':

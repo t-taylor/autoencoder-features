@@ -1,4 +1,4 @@
-def get_metrics(model, test):
+def get_metrics(model, X_test, Y_test):
     metrics = ['accuracy', 'tpr', 'tnr', 'ppv']
     output = {}
     for metric in metrics:

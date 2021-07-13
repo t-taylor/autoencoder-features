@@ -66,7 +66,7 @@ def dense_model(inlen, outlen):
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return lambda: model
 
-def generate_models(train, test):
+def generate_models(X_train, Y_train):
     methods = ['bayesian', 'svm', 'neural_net', 'decision_tree']
     outputs = {}
     for method in methods:
