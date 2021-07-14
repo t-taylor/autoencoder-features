@@ -2,9 +2,9 @@ import unittest as ut
 import numpy as np
 from sklearn import decomposition
 
-def pca(X_train, X_test):
+def pca(X_train, X_test, n_components):
 
-    pca_state = decomposition.PCA()
+    pca_state = decomposition.PCA(n_components=n_components)
     pca_state.fit(X_train)
 
     X_pca_train = pca_state.transform(X_train)
@@ -20,20 +20,21 @@ def dimentional_reductions(train, test):
     X_test = np.asarray(test[:,0:-2]).astype(np.float32)
     Y_test = test[:,-2]
 
-    methods = ['autoencoder', 'pca_with_autoencoder', 'pca_with_varthresh', 'none']
     outputs = {}
-    for method in methods:
-        if method == 'none':
-            outputs[method] = (train, test)
-        if method == 'pca_with_varthresh':
-            # TODO
-            outputs[method] = (train, test)
-        if method == 'autoencoder':
-            # TODO
-            outputs[method] = (train, test)
-        if method == 'pca_with_autoencoder':
-            # TODO
-            outputs[method] = (train, test)
+
+    # Principal component analysis with variance threshold TODO
+    (X_pca_train, X_pca_test) = pca(X_train, X_test, n_components=0.95)
+    outputs['pca_with_varthresh'] = (X_pca_train, Y_train, X_pca_test, Y_test)
+
+    # Variational autoencoder TODO
+    outputs['autoencoder'] = 0
+
+    # Variational autoencoder with principal component analysis TODO
+    outputs['pca_with_autoencoder'] = 0
+
+    # No dimensional reduction
+    outputs['none'] = (X_train, Y_train, X_test, Y_test)
+
     return outputs
 
 class dimentional_reductions_test(ut.TestCase):
