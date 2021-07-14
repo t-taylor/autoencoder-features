@@ -20,43 +20,43 @@ import utils.eval as ev
 import utils.ml as ml
 
 def demo():
-    (train, test) = nsl_multiclass()
-    train = train.values
-    X = np.asarray(train[:,0:-2]).astype(np.float32)
-    Y = train[:,-2]
+  (train, test) = nsl_multiclass()
+  train = train.values
+  X = np.asarray(train[:,0:-2]).astype(np.float32)
+  Y = train[:,-2]
 
-    print('X.....')
-    print(X)
-    print('Y.....')
-    print(Y)
+  print('X.....')
+  print(X)
+  print('Y.....')
+  print(Y)
 
-    encoder = LabelEncoder()
-    encoder.fit(Y)
-    encoded_Y = encoder.transform(Y)
-    dummy_y = to_categorical(encoded_Y)
-    (_, inlen) = X.shape
-    (_, outlen) = dummy_y.shape
+  encoder = LabelEncoder()
+  encoder.fit(Y)
+  encoded_Y = encoder.transform(Y)
+  dummy_y = to_categorical(encoded_Y)
+  (_, inlen) = X.shape
+  (_, outlen) = dummy_y.shape
 
-    estimator = tf.keras.wrappers.scikit_learn.KerasClassifier(
-        build_fn= ml.dense_model(inlen, outlen), epochs=20, batch_size=2, verbose=2)
+  estimator = tf.keras.wrappers.scikit_learn.KerasClassifier(
+    build_fn= ml.dense_model(inlen, outlen), epochs=20, batch_size=2, verbose=2)
 
-    kfold = KFold(n_splits=10, shuffle=True)
+  kfold = KFold(n_splits=10, shuffle=True)
 
-    results = cross_val_score(estimator, X, dummy_y, cv=kfold)
-    print("Baseline: %.2f%% (%.2f%%)" % (results.mean()*100, results.std()*100))
+  results = cross_val_score(estimator, X, dummy_y, cv=kfold)
+  print("Baseline: %.2f%% (%.2f%%)" % (results.mean()*100, results.std()*100))
 
 def main():
-    (train, test) = nsl_multiclass()
+  (train, test) = nsl_multiclass()
 
-    inputs = dr.dimentional_reductions(train, test)
+  inputs = dr.dimentional_reductions(train, test)
 
-    for dimred, (X_train, Y_train, X_test, Y_test) in inputs.items():
-        models = ml.generate_models(X_train, Y_train)
+  for dimred, (X_train, Y_train, X_test, Y_test) in inputs.items():
+    models = ml.generate_models(X_train, Y_train)
 
-        for modeltype, model in models.items():
-            metrics = ev.get_metrics(model, X_test, Y_test)
+    for modeltype, model in models.items():
+      metrics = ev.get_metrics(model, X_test, Y_test)
 
-            print(dimred, modeltype, metrics)
+      print(dimred, modeltype, metrics)
 
 if __name__ == '__main__':
-    main()
+  main()
