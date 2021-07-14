@@ -14,23 +14,23 @@ def pca(X_train, X_test, n_components):
 
 def dimentional_reductions(train, test):
 
-    X_train = np.asarray(train[:,0:-2]).astype(np.float32)
-    Y_train = train[:,-2]
+    X_train = np.asarray(train.values[:,0:-2]).astype(np.float32)
+    Y_train = train.values[:,-2]
 
-    X_test = np.asarray(test[:,0:-2]).astype(np.float32)
-    Y_test = test[:,-2]
+    X_test = np.asarray(test.values[:,0:-2]).astype(np.float32)
+    Y_test = test.values[:,-2]
 
     outputs = {}
 
     # Principal component analysis with variance threshold TODO
-    (X_pca_train, X_pca_test) = pca(X_train, X_test, n_components=0.95)
+    (X_pca_train, X_pca_test) = pca(X_train, X_test, 0.95)
     outputs['pca_with_varthresh'] = (X_pca_train, Y_train, X_pca_test, Y_test)
 
-    # Variational autoencoder TODO
-    outputs['autoencoder'] = 0
+    ## Variational autoencoder TODO
+    #outputs['autoencoder'] = 0
 
-    # Variational autoencoder with principal component analysis TODO
-    outputs['pca_with_autoencoder'] = 0
+    ## Variational autoencoder with principal component analysis TODO
+    #outputs['pca_with_autoencoder'] = 0
 
     # No dimensional reduction
     outputs['none'] = (X_train, Y_train, X_test, Y_test)

@@ -17,17 +17,18 @@ def bayesian(X_train, Y_train):
 
 def generate_models(X_train, Y_train):
     outputs = {}
-    # TODO
+    # Gaussian naive bayes
     outputs['bayesian'] = bayesian(X_train, Y_train)
 
-    # TODO
-    outputs['svm'] = 'some_model'
+    ## Support vector machine TODO
+    #outputs['svm'] = 'some_model'
 
-    # TODO
-    outputs['neural_net'] = 'some_model'
+    ## TODO
+    #outputs['neural_net'] = 'some_model'
 
-    # TODO
-    outputs['decision_tree'] = 'some_model'
+    ## TODO
+    #outputs['decision_tree'] = 'some_model'
+    return outputs
 
 class generate_models_test(ut.TestCase):
 

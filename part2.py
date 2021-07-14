@@ -47,7 +47,6 @@ def demo():
 
 def main():
     (train, test) = nsl_multiclass()
-    train = train.values
 
     inputs = dr.dimentional_reductions(train, test)
 
@@ -56,7 +55,8 @@ def main():
 
         for modeltype, model in models.items():
             metrics = ev.get_metrics(model, X_test, Y_test)
-            # Then write results to csv TODO
+
+            print(dimred, modeltype, metrics)
 
 if __name__ == '__main__':
     main()
