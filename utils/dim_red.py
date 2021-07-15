@@ -28,7 +28,7 @@ def dimentional_reductions(train, test):
   outputs['pca_with_varthresh'] = (X_pca_train, Y_train, X_pca_test, Y_test)
 
   ## Variational autoencoder TODO
-  #outputs['autoencoder'] = cvae.get_model(X_train, Y_train)
+  outputs['autoencoder'] = cvae.apply_cvae(X_train, X_test)
 
   ## Variational autoencoder with principal component analysis TODO
   #outputs['pca_with_autoencoder'] = 0
