@@ -20,6 +20,7 @@ class CVAE(tf.keras.Model):
     super(CVAE, self).__init__()
     print('VALES__', latent_dim, feature_dim)
     self.latent_dim = latent_dim
+    self.optimizer = tf.keras.optimizers.Adam(1e-4)
     self.encoder = tf.keras.Sequential(
       [tf.keras.layers.InputLayer(input_shape=feature_dim),
        tf.keras.layers.Dense(feature_dim, activation='relu'),
@@ -56,7 +57,19 @@ class CVAE(tf.keras.Model):
       return probs
     return logits
 
-optimizer = tf.keras.optimizers.Adam(1e-4)
+  @tf.function
+  def train_step(self, x):
+    """Executes one training step and returns the loss.
+
+    This function computes the loss and gradients, and uses the latter to
+    update the model's parameters.
+    """
+    with tf.GradientTape() as tape:
+      loss = compute_loss(self, x)
+    gradients = tape.gradient(loss, self.trainable_variables)
+    self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
+
+
 
 def log_normal_pdf(sample, mean, logvar, raxis=1):
   log2pi = tf.math.log(2. * np.pi)
@@ -75,25 +88,13 @@ def compute_loss(model, x):
   return -tf.reduce_mean(logpx_z + logpz - logqz_x)
 
 
-@tf.function
-def train_step(model, x, optimizer):
-  """Executes one training step and returns the loss.
-
-  This function computes the loss and gradients, and uses the latter to
-  update the model's parameters.
-  """
-  with tf.GradientTape() as tape:
-    loss = compute_loss(model, x)
-  gradients = tape.gradient(loss, model.trainable_variables)
-  optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-
 def train_model(model, X_train, latent_dim, epochs):
   for epoch in range(epochs):
     start_time = time.time()
     print('Starting epoch', epoch)
     X_train_batched = batch(X_train, 32)
     for x in X_train_batched:
-      train_step(model, x, optimizer)
+      model.train_step(x)
     end_time = time.time()
     loss = tf.keras.metrics.Mean()
     for test_x in X_train_batched:
@@ -118,7 +119,7 @@ def apply_cvae(X_train, X_test, latent_dim=5, epochs=100):
 class cvae_test(ut.TestCase):
 
   def test_train_model(self):
-    X_train = np.array([[r.random() for i in range(8)] for j in range(32)]).astype(np.float32)
+    X_train = np.array([[r.random() for i in range(8)] for j in range(49)]).astype(np.float32)
     X_test = np.array([X_train[0]])
     latent_dim = 2
     epochs = 9
@@ -147,7 +148,14 @@ class cvae_test(ut.TestCase):
     self.assertEqual(Xb.shape, (7,))
 
   def test_apply_cvae(self):
-    # asdflk
+    print('')
+    X = np.array([[r.random() for i in range(8)] for j in range(128)]).astype(np.float32)
+    X_test = np.array([[r.random() for i in range(8)] for j in range(32)]).astype(np.float32)
+    latent_dim = 2
+    epochs = 20
+
+    (X_train_cvae, X_test_cvae) = apply_cvae(X, X_test, latent_dim=latent_dim, epochs=epochs)
+    print(type(X_train_cvae))
 
 
 if __name__ == '__main__':
