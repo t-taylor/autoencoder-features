@@ -88,11 +88,16 @@ def nsl_multiclass():
             train_norm = train_norm.join(onehottrain)
             test_norm = test_norm.join(onehottest)
         else:
-            mean = nsldf_train[k].mean()
             std = nsldf_train[k].std()
             if std != 0:
-                train_norm[k] = (nsldf_train[k] - mean)/std
-                test_norm[k] = (nsldf_test[k] - mean)/std
+                # min max scaling
+                minn = min(nsldf_train[k].min(), nsldf_test[k].min())
+                maxn = max(nsldf_train[k].max(), nsldf_test[k].max())
+                train_norm[k] = (nsldf_train[k] - minn)/(maxn - minn)
+                test_norm[k] = (nsldf_test[k] - minn)/(maxn - minn)
+                # normal distribution scaling
+                # train_norm[k] = (nsldf_train[k] - mean)/std
+                # test_norm[k] = (nsldf_test[k] - mean)/std
 
     assert(train_norm.shape[1] == test_norm.shape[1]) # Make sure columns line up
     return (train_norm, test_norm)

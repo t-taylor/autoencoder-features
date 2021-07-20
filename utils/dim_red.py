@@ -1,17 +1,17 @@
 import unittest as ut
 import numpy as np
 import utils.cvae as cvae
-from sklearn import decomposition
+from sklearn import decomposition, preprocessing
 
 def pca(X_train, X_test, n_components):
 
   pca_state = decomposition.PCA(n_components=n_components)
   pca_state.fit(X_train)
 
-  X_pca_train = pca_state.transform(X_train)
-  X_pca_test = pca_state.transform(X_test)
+  X_train_pca = preprocessing.minmax_scale(pca_state.transform(X_train), axis=1)
+  X_test_pca = preprocessing.minmax_scale(pca_state.transform(X_test), axis=1)
 
-  return (X_pca_train, X_pca_test)
+  return (X_train_pca, X_test_pca)
 
 def dimentional_reductions(train, test):
 
@@ -23,15 +23,18 @@ def dimentional_reductions(train, test):
 
   outputs = {}
 
-  # Principal component analysis with variance threshold TODO
-  (X_pca_train, X_pca_test) = pca(X_train, X_test, 0.95)
-  outputs['pca_with_varthresh'] = (X_pca_train, Y_train, X_pca_test, Y_test)
+  # Principal component analysis with variance threshold
+  (X_train_pca_thresh, X_test_pca_thresh) = pca(X_train, X_test, 0.95)
+  outputs['pca_with_varthresh'] = (X_train_pca_thresh, Y_train, X_test_pca_thresh, Y_test)
 
-  ## Variational autoencoder TODO
-  outputs['autoencoder'] = cvae.apply_cvae(X_train, X_test)
+  # Variational autoencoder TODO maybe different epochs / latent
+  (X_train_cvae, X_test_cvae) = cvae.apply_cvae(X_train, X_test)
+  outputs['autoencoder'] = (X_train_cvae, Y_train, X_test_cvae, Y_test)
 
-  ## Variational autoencoder with principal component analysis TODO
-  #outputs['pca_with_autoencoder'] = 0
+  # Variational autoencoder with principal component analysis TODO maybe different epochs / latent
+  (X_train_pca, X_test_pca) = pca(X_train, X_test, 0.95)
+  (X_train_cvae_pca, X_test_cvae_pca) = cvae.apply_cvae(X_train_pca, X_test_pca)
+  outputs['pca_with_autoencoder'] = (X_train_cvae_pca, Y_train, X_test_cvae_pca, Y_test)
 
   # No dimensional reduction
   outputs['none'] = (X_train, Y_train, X_test, Y_test)
