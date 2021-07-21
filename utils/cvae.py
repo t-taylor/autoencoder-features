@@ -18,6 +18,10 @@ def log_normal_pdf(sample, mean, logvar, raxis=1):
       -.5 * ((sample - mean) ** 2. * tf.exp(-logvar) + logvar + log2pi),
       axis=raxis)
 
+def reparameterize(mean, logvar):
+  eps = tf.random.normal(shape=mean.shape)
+  return eps * tf.exp(logvar * .5) + mean
+
 
 class CVAE(tf.keras.Model):
   """Convolutional variational autoencoder."""
@@ -51,10 +55,6 @@ class CVAE(tf.keras.Model):
     mean, logvar = tf.split(pred, num_or_size_splits=2, axis=1)
     return mean, logvar
 
-  def reparameterize(self, mean, logvar):
-    eps = tf.random.normal(shape=mean.shape)
-    return eps * tf.exp(logvar * .5) + mean
-
   def decode(self, z, apply_sigmoid=False):
     logits = self.decoder(z)
     if apply_sigmoid:
@@ -64,7 +64,7 @@ class CVAE(tf.keras.Model):
 
   def compute_loss(self, x):
     mean, logvar = self.encode(x)
-    z = self.reparameterize(mean, logvar)
+    z = reparameterize(mean, logvar)
     x_logit = self.decode(z)
     cross_ent = tf.nn.sigmoid_cross_entropy_with_logits(logits=x_logit, labels=x)
     logpx_z = -tf.reduce_sum(cross_ent)
