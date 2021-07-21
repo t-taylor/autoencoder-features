@@ -13,6 +13,7 @@ from part1 import nsl_multiclass, malware_df
 from sklearn.model_selection import KFold, cross_val_score
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.utils import to_categorical
+import csv
 import numpy as np
 import tensorflow as tf
 import utils.dim_red as dr
@@ -50,13 +51,19 @@ def main():
 
   inputs = dr.dimentional_reductions(train, test)
 
-  for dimred, (X_train, Y_train, X_test, Y_test) in inputs.items():
-    models = ml.generate_models(X_train, Y_train)
+  with open('results.csv', 'wb') as f:
+    cw = csv.writer(f)
+    cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1'])
+    for dimred, (X_train, Y_train, X_test, Y_test) in inputs.items():
+      models = ml.generate_models(X_train, Y_train)
 
-    for modeltype, model in models.items():
-      metrics = ev.get_metrics(model, X_test, Y_test)
+      for modeltype, model in models.items():
+        metrics = ev.get_metrics(model, X_test, Y_test)
 
-      print(dimred, modeltype, metrics)
+        print(dimred, modeltype, metrics)
+        cw.writerow([dimred, modeltype, metrics['accuracy'], metrics['precision'], metrics['recall'], metrics['f1']])
+
+
 
 if __name__ == '__main__':
   main()
