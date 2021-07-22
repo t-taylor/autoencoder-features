@@ -29,8 +29,9 @@ def dimentional_reductions(train, test):
   # Variational autoencoder
   for e in range(50, 550, 50):
     for lf in range(2, 15):
+      print('dm1', e, lf)
       (X_train_cvae_pca, X_test_cvae_pca) = cvae.apply_cvae(X_train, X_test, latent_dim=lf, epochs=e)
-      outputs['autoencoder_' + e + '_' + lf] = (X_train_cvae_pca, Y_train, X_test_cvae_pca, Y_test)
+      outputs['autoencoder_' + str(e) + '_' + str(lf)] = (X_train_cvae_pca, Y_train, X_test_cvae_pca, Y_test)
 
   # PCA with mle
   # https://tminka.github.io/papers/pca/minka-pca.pdf
@@ -38,19 +39,21 @@ def dimentional_reductions(train, test):
   outputs['pca_with_mle'] = (X_train_pca_mle, Y_train, X_test_pca_mle, Y_test)
   for e in range(50, 550, 50):
     for lf in range(2, 15):
-    (X_train_cvae_pca, X_test_cvae_pca) = cvae.apply_cvae(X_train_pca_thresh, X_test_pca_thresh, latent_dim=lf, epochs=e)
-    outputs['pca_with_varthresh_mle_autoencoder_' + e + '_' + lf] = (X_train_cvae_pca, Y_train, X_test_cvae_pca, Y_test)
+      print('dm2', e, lf)
+      (X_train_cvae_pca, X_test_cvae_pca) = cvae.apply_cvae(X_train_pca_thresh, X_test_pca_thresh, latent_dim=lf, epochs=e)
+      outputs['pca_with_varthresh_mle_autoencoder_' + str(e) + '_' + str(lf)] = (X_train_cvae_pca, Y_train, X_test_cvae_pca, Y_test)
 
   for n in range(80,100):
     thresh = n / 100
     # Principal component analysis with variance threshold
     (X_train_pca_thresh, X_test_pca_thresh) = pca(X_train, X_test, thresh)
-    outputs['pca_with_varthresh_' + thresh] = (X_train_pca_thresh, Y_train, X_test_pca_thresh, Y_test)
+    outputs['pca_with_varthresh_' + str(thresh)] = (X_train_pca_thresh, Y_train, X_test_pca_thresh, Y_test)
 
     for e in range(50, 550, 50):
       for lf in range(2, 15):
-      (X_train_cvae_pca, X_test_cvae_pca) = cvae.apply_cvae(X_train_pca_thresh, X_test_pca_thresh, latent_dim=lf, epochs=e)
-      outputs['pca_with_varthresh_' + thresh + '_autoencoder_' + e + '_' + lf] = (X_train_cvae_pca, Y_train, X_test_cvae_pca, Y_test)
+        print('dm3', e, lf, n)
+        (X_train_cvae_pca, X_test_cvae_pca) = cvae.apply_cvae(X_train_pca_thresh, X_test_pca_thresh, latent_dim=lf, epochs=e)
+        outputs['pca_with_varthresh_' + str(thresh) + '_autoencoder_' + str(e) + '_' + str(lf)] = (X_train_cvae_pca, Y_train, X_test_cvae_pca, Y_test)
 
   return outputs
 

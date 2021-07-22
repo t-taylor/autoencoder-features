@@ -34,7 +34,7 @@ def make_dtrees(X_train, Y_train):
       for mss in range(2, 20):
         for msl in range(1, 10):
           mdt = tree.DecisionTreeClassifier(criterion=c, splitter=s, min_samples_split=mss, min_samples_leaf=msl)
-          out['dtree_' + c + '_' + s + '_' + str(mss) + '_' + str(msl)] = mdt.fit(X_train, Y_train)
+          out['dtree_' + str(c) + '_' + str(s) + '_' + str(mss) + '_' + str(msl)] = mdt.fit(X_train, Y_train)
   return out
 
 def make_neural_nets(X_train, Y_train):
@@ -49,7 +49,7 @@ def generate_models(X_train, Y_train):
 
   # Support vector machine
   for kern, m in make_svms(X_train, Y_train).items():
-    outputs['svm_' + kern] = m
+    outputs['svm_' + str(kern)] = m
 
   # Decision Trees
   outputs = outputs | make_dtrees(X_train, Y_train)
