@@ -24,11 +24,11 @@ def main():
 
   ## Malware Multiclass
 
+  print('Start malware multiclass')
   maldf = malware_df()
 
   X_raw = np.asarray(maldf.values[:,0:-1]).astype(np.float32)
   Y_raw = maldf.values[:,-1]
-  print(Y_raw)
   X_train_raw, X_test_raw, Y_train_raw, Y_test_raw = train_test_split(X_raw, Y_raw, test_size=0.2)
   inputs = dr.dimentional_reductions(X_train_raw, X_test_raw, Y_train_raw, Y_test_raw)
   with open('malware-multiclass-results.csv', 'wt') as f:
@@ -45,8 +45,9 @@ def main():
 
   ## NSL Binary
 
-  (train, test) = multi_to_bin(nsl_multiclass())
+  print('Start nsl binary')
 
+  (train, test) = multi_to_bin(nsl_multiclass())
   X_train_raw = np.asarray(train.values[:,0:-1]).astype(np.float32)
   Y_train_raw = train.values[:,-1]
   X_test_raw = np.asarray(test.values[:,0:-1]).astype(np.float32)
@@ -67,8 +68,9 @@ def main():
 
   ## NSL Multiclass
 
-  (train, test) = nsl_multiclass()
+  print('Start nsl multiclass')
 
+  (train, test) = nsl_multiclass()
   X_train_raw = np.asarray(train.values[:,0:-1]).astype(np.float32)
   Y_train_raw = train.values[:,-1]
   X_test_raw = np.asarray(test.values[:,0:-1]).astype(np.float32)
