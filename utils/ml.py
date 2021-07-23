@@ -36,7 +36,7 @@ def make_dtrees(X_train, Y_train):
 def make_neural_nets(X_train, Y_train):
   out = {}
 
-  for n_layers in [1,3,5]:
+  for n_layers in [1, 3]:
     model = den.create_dnet(X_train, Y_train, n_layers)
     out['nn_' + str(n_layers)] = model
 
@@ -49,8 +49,8 @@ def generate_models(X_train, Y_train):
   outputs['bayesian'] = make_bayesian(X_train, Y_train)
 
   # Support vector machine
-  #for kern, m in make_svms(X_train, Y_train).items():
-  #  outputs['svm_' + str(kern)] = m
+  for kern, m in make_svms(X_train, Y_train).items():
+    outputs['svm_' + str(kern)] = m
 
   ## Decision Trees
   #outputs = outputs | make_dtrees(X_train, Y_train)
