@@ -5,13 +5,7 @@ import sklearn.datasets as skdata
 import sklearn.model_selection as skms
 import tensorflow as tf
 import unittest as ut
-
-def dense_model(inlen, outlen):
-  model = tf.keras.Sequential()
-  model.add(tf.keras.layers.Dense(inlen, input_dim=inlen, activation='relu'))
-  model.add(tf.keras.layers.Dense(outlen, activation='softmax'))
-  model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-  return lambda: model
+import utils.dense_net as den
 
 def make_bayesian(X_train, Y_train):
   gnb = nb.GaussianNB()
@@ -21,6 +15,7 @@ def make_svms(X_train, Y_train):
   kerns = ['linear', 'poly', 'rbf', 'sigmoid']
   out = {}
   for k in kerns:
+    print('creating svm', k)
     msvm = svm.SVC(kernel=k)
     out[k] = msvm.fit(X_train, Y_train)
   return out
@@ -33,12 +28,18 @@ def make_dtrees(X_train, Y_train):
     for s in splitter:
       for mss in range(2, 20):
         for msl in range(1, 10):
+          print('creating dtree', c, s, mss, msl)
           mdt = tree.DecisionTreeClassifier(criterion=c, splitter=s, min_samples_split=mss, min_samples_leaf=msl)
           out['dtree_' + str(c) + '_' + str(s) + '_' + str(mss) + '_' + str(msl)] = mdt.fit(X_train, Y_train)
   return out
 
 def make_neural_nets(X_train, Y_train):
   out = {}
+
+  for n_layers in [1,3,5]:
+    model = den.create_dnet(X_train, Y_train, n_layers)
+    out['nn_' + str(n_layers)] = model
+
   return out
 
 
@@ -48,14 +49,14 @@ def generate_models(X_train, Y_train):
   outputs['bayesian'] = make_bayesian(X_train, Y_train)
 
   # Support vector machine
-  for kern, m in make_svms(X_train, Y_train).items():
-    outputs['svm_' + str(kern)] = m
+  #for kern, m in make_svms(X_train, Y_train).items():
+  #  outputs['svm_' + str(kern)] = m
 
-  # Decision Trees
-  outputs = outputs | make_dtrees(X_train, Y_train)
+  ## Decision Trees
+  #outputs = outputs | make_dtrees(X_train, Y_train)
 
-  ## TODO
-  #outputs['neural_net'] = 'some_model'
+  # Neural Networks
+  outputs = outputs | make_neural_nets(X_train, Y_train)
 
   return outputs
 

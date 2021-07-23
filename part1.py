@@ -41,7 +41,7 @@ def nsl_binary():
     train_norm = pd.DataFrame()
     test_norm = pd.DataFrame()
     for k,v in nsldf_train.dtypes.items():
-        if k == 'class':
+        if k == 'class' or k == 'difficulty':
             train_norm[k] = nsldf_train[k].astype('category')
             test_norm[k] = nsldf_test[k].astype('category')
         elif str(v) == 'float64':
@@ -73,9 +73,11 @@ def nsl_multiclass():
     train_norm = pd.DataFrame()
     test_norm = pd.DataFrame()
     for k,v in nsldf_train.dtypes.items():
-        if k == 'class' or k == 'difficulty':
+        if k == 'class':
             train_norm[k] = nsldf_train[k].astype('category')
             test_norm[k] = nsldf_test[k].astype('category')
+        elif k == 'difficulty':
+            pass
         elif str(v) == 'object':
             onehottrain = pd.get_dummies(nsldf_train[k])
             onehottest = pd.get_dummies(nsldf_test[k])
@@ -101,6 +103,15 @@ def nsl_multiclass():
 
     assert(train_norm.shape[1] == test_norm.shape[1]) # Make sure columns line up
     return (train_norm, test_norm)
+
+def multi_to_bin(data):
+    train, test = data
+    train = train.copy()
+    test = test.copy()
+
+    train['class'] = train['class'].map(lambda x: 1 if x not in 'normal' else 0)
+    test['class'] = test['class'].map(lambda x: 1 if x not in 'normal' else 0)
+    return train, test
 
 def nsl_explore():
     (train, test) = nsl_multiclass()
@@ -160,7 +171,20 @@ def malware():
                 trainwrite.writerow(d.values())
 
 def malware_df():
-    return pd.read_csv('data/mal/train.csv')
+    mal = pd.read_csv('data/mal/train.csv')
+    out = pd.DataFrame()
+    for k in mal.columns:
+        if k == 'class':
+            out[k] = mal[k].astype('category')
+        else:
+            std = mal[k].std()
+            if std != 0:
+                # min max scaling
+                minn = min(mal[k].min(), mal[k].min())
+                maxn = max(mal[k].max(), mal[k].max())
+                out[k] = (mal[k] - minn)/(maxn - minn)
+                out[k] = (mal[k] - minn)/(maxn - minn)
+    return out
 
 if __name__ == '__main__':
     main()

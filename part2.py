@@ -9,8 +9,8 @@
 # * Step 2, Choice of ML algorithm
 # * Step 3, Calculate metrics
 
-from part1 import nsl_multiclass, malware_df
-from sklearn.model_selection import KFold, cross_val_score
+from part1 import nsl_multiclass, malware_df, multi_to_bin
+from sklearn.model_selection import KFold, cross_val_score, train_test_split
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.utils import to_categorical
 import csv
@@ -20,50 +20,72 @@ import utils.dim_red as dr
 import utils.eval as ev
 import utils.ml as ml
 
-def demo():
-  (train, test) = nsl_multiclass()
-  train = train.values
-  X = np.asarray(train[:,0:-2]).astype(np.float32)
-  Y = train[:,-2]
-
-  print('X.....')
-  print(X)
-  print('Y.....')
-  print(Y)
-
-  encoder = LabelEncoder()
-  encoder.fit(Y)
-  encoded_Y = encoder.transform(Y)
-  dummy_y = to_categorical(encoded_Y)
-  (_, inlen) = X.shape
-  (_, outlen) = dummy_y.shape
-
-  estimator = tf.keras.wrappers.scikit_learn.KerasClassifier(
-    build_fn= ml.dense_model(inlen, outlen), epochs=20, batch_size=2, verbose=2)
-
-  kfold = KFold(n_splits=10, shuffle=True)
-
-  results = cross_val_score(estimator, X, dummy_y, cv=kfold)
-  print("Baseline: %.2f%% (%.2f%%)" % (results.mean()*100, results.std()*100))
-
 def main():
-  (train, test) = nsl_multiclass()
 
-  inputs = dr.dimentional_reductions(train, test)
+  ## Malware Multiclass
 
-  with open('results.csv', 'wb') as f:
+  maldf = malware_df()
+
+  X_raw = np.asarray(maldf.values[:,0:-1]).astype(np.float32)
+  Y_raw = maldf.values[:,-1]
+  print(Y_raw)
+  X_train_raw, X_test_raw, Y_train_raw, Y_test_raw = train_test_split(X_raw, Y_raw, test_size=0.2)
+  inputs = dr.dimentional_reductions(X_train_raw, X_test_raw, Y_train_raw, Y_test_raw)
+  with open('malware-multiclass-results.csv', 'wt') as f:
     cw = csv.writer(f)
     cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1'])
     for dimred, (X_train, Y_train, X_test, Y_test) in inputs.items():
       models = ml.generate_models(X_train, Y_train)
 
       for modeltype, model in models.items():
-        metrics = ev.get_metrics(model, X_test, Y_test)
+        metrics = ev.get_multiclass_metrics(model, X_test, Y_test)
 
         print(dimred, modeltype, metrics)
         cw.writerow([dimred, modeltype, metrics['accuracy'], metrics['precision'], metrics['recall'], metrics['f1']])
 
+  ## NSL Binary
 
+  (train, test) = multi_to_bin(nsl_multiclass())
+
+  X_train_raw = np.asarray(train.values[:,0:-1]).astype(np.float32)
+  Y_train_raw = train.values[:,-1]
+  X_test_raw = np.asarray(test.values[:,0:-1]).astype(np.float32)
+  Y_test_raw = test.values[:,-1]
+
+  inputs = dr.dimentional_reductions(X_train_raw, X_test_raw, Y_train_raw, Y_test_raw)
+  with open('nsl-binary-results.csv', 'wt') as f:
+    cw = csv.writer(f)
+    cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1'])
+    for dimred, (X_train, Y_train, X_test, Y_test) in inputs.items():
+      models = ml.generate_models(X_train, Y_train)
+
+      for modeltype, model in models.items():
+        metrics = ev.get_binary_metrics(model, X_test, Y_test)
+
+        print(dimred, modeltype, metrics)
+        cw.writerow([dimred, modeltype, metrics['accuracy'], metrics['precision'], metrics['recall'], metrics['f1']])
+
+  ## NSL Multiclass
+
+  (train, test) = nsl_multiclass()
+
+  X_train_raw = np.asarray(train.values[:,0:-1]).astype(np.float32)
+  Y_train_raw = train.values[:,-1]
+  X_test_raw = np.asarray(test.values[:,0:-1]).astype(np.float32)
+  Y_test_raw = test.values[:,-1]
+
+  inputs = dr.dimentional_reductions(X_train_raw, X_test_raw, Y_train_raw, Y_test_raw)
+  with open('nsl-multiclass-results.csv', 'wt') as f:
+    cw = csv.writer(f)
+    cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1'])
+    for dimred, (X_train, Y_train, X_test, Y_test) in inputs.items():
+      models = ml.generate_models(X_train, Y_train)
+
+      for modeltype, model in models.items():
+        metrics = ev.get_multiclass_metrics(model, X_test, Y_test)
+
+        print(dimred, modeltype, metrics)
+        cw.writerow([dimred, modeltype, metrics['accuracy'], metrics['precision'], metrics['recall'], metrics['f1']])
 
 if __name__ == '__main__':
   main()
