@@ -33,7 +33,7 @@ def main():
   inputs = dr.dimentional_reductions(X_train_raw, X_test_raw, Y_train_raw, Y_test_raw)
   with open('malware-multiclass-results.csv', 'wt') as f:
     cw = csv.writer(f)
-    cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1'])
+    cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1', 'mcc'])
     for dimred, (X_train, Y_train, X_test, Y_test) in inputs.items():
       models = ml.generate_models(X_train, Y_train)
 
@@ -41,7 +41,7 @@ def main():
         metrics = ev.get_multiclass_metrics(model, X_test, Y_test)
 
         print(dimred, modeltype, metrics)
-        cw.writerow([dimred, modeltype, metrics['accuracy'], metrics['precision'], metrics['recall'], metrics['f1']])
+        cw.writerow([dimred, modeltype, metrics['accuracy'], metrics['precision'], metrics['recall'], metrics['f1'], metrics['mcc']])
 
   ## NSL Binary
 
@@ -56,7 +56,7 @@ def main():
   inputs = dr.dimentional_reductions(X_train_raw, X_test_raw, Y_train_raw, Y_test_raw)
   with open('nsl-binary-results.csv', 'wt') as f:
     cw = csv.writer(f)
-    cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1'])
+    cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1', 'mcc'])
     for dimred, (X_train, Y_train, X_test, Y_test) in inputs.items():
       models = ml.generate_models(X_train, Y_train)
 
@@ -64,7 +64,7 @@ def main():
         metrics = ev.get_binary_metrics(model, X_test, Y_test)
 
         print(dimred, modeltype, metrics)
-        cw.writerow([dimred, modeltype, metrics['accuracy'], metrics['precision'], metrics['recall'], metrics['f1']])
+        cw.writerow([dimred, modeltype, metrics['accuracy'], metrics['precision'], metrics['recall'], metrics['f1'], metrics['mcc']])
 
   ## NSL Multiclass
 
@@ -79,7 +79,7 @@ def main():
   inputs = dr.dimentional_reductions(X_train_raw, X_test_raw, Y_train_raw, Y_test_raw)
   with open('nsl-multiclass-results.csv', 'wt') as f:
     cw = csv.writer(f)
-    cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1'])
+    cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1', 'mcc'])
     for dimred, (X_train, Y_train, X_test, Y_test) in inputs.items():
       models = ml.generate_models(X_train, Y_train)
 
@@ -87,7 +87,7 @@ def main():
         metrics = ev.get_multiclass_metrics(model, X_test, Y_test)
 
         print(dimred, modeltype, metrics)
-        cw.writerow([dimred, modeltype, metrics['accuracy'], metrics['precision'], metrics['recall'], metrics['f1']])
+        cw.writerow([dimred, modeltype, metrics['accuracy'], metrics['precision'], metrics['recall'], metrics['f1'], metrics['mcc']])
 
 if __name__ == '__main__':
   main()

@@ -12,7 +12,7 @@ def make_bayesian(X_train, Y_train):
   return gnb.fit(X_train, Y_train)
 
 def make_svms(X_train, Y_train):
-  kerns = ['linear', 'poly', 'rbf', 'sigmoid']
+  kerns = ['poly', 'rbf']
   out = {}
   for k in kerns:
     print('creating svm', k)
