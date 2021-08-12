@@ -24,24 +24,24 @@ def main():
 
   ## Malware Multiclass
 
-  print('Start malware multiclass')
-  maldf = malware_df()
+  #print('Start malware multiclass')
+  #maldf = malware_df()
 
-  X_raw = np.asarray(maldf.values[:,0:-1]).astype(np.float32)
-  Y_raw = maldf.values[:,-1]
-  X_train_raw, X_test_raw, Y_train_raw, Y_test_raw = train_test_split(X_raw, Y_raw, test_size=0.2)
-  inputs = dr.dimentional_reductions(X_train_raw, X_test_raw, Y_train_raw, Y_test_raw)
-  with open('malware-multiclass-results.csv', 'wt') as f:
-    cw = csv.writer(f)
-    cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1', 'mcc'])
-    for dimred, (X_train, Y_train, X_test, Y_test) in inputs.items():
-      models = ml.generate_models(X_train, Y_train)
+  #X_raw = np.asarray(maldf.values[:,0:-1]).astype(np.float32)
+  #Y_raw = maldf.values[:,-1]
+  #X_train_raw, X_test_raw, Y_train_raw, Y_test_raw = train_test_split(X_raw, Y_raw, test_size=0.2)
+  #inputs = dr.dimentional_reductions(X_train_raw, X_test_raw, Y_train_raw, Y_test_raw)
+  #with open('malware-multiclass-results.csv', 'wt') as f:
+  #  cw = csv.writer(f)
+  #  cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1', 'mcc'])
+  #  for dimred, (X_train, Y_train, X_test, Y_test) in inputs.items():
+  #    models = ml.generate_models(X_train, Y_train)
 
-      for modeltype, model in models.items():
-        metrics = ev.get_multiclass_metrics(model, X_test, Y_test)
+  #    for modeltype, model in models.items():
+  #      metrics = ev.get_multiclass_metrics(model, X_test, Y_test)
 
-        print(dimred, modeltype, metrics)
-        cw.writerow([dimred, modeltype, metrics['accuracy'], metrics['precision'], metrics['recall'], metrics['f1'], metrics['mcc']])
+  #      print(dimred, modeltype, metrics)
+  #      cw.writerow([dimred, modeltype, metrics['accuracy'], metrics['precision'], metrics['recall'], metrics['f1'], metrics['mcc']])
 
   ## NSL Binary
 
@@ -54,7 +54,7 @@ def main():
   Y_test_raw = test.values[:,-1]
 
   inputs = dr.dimentional_reductions(X_train_raw, X_test_raw, Y_train_raw, Y_test_raw)
-  with open('nsl-binary-results.csv', 'wt') as f:
+  with open('nsl-binary-results-no-nn.csv', 'wt') as f:
     cw = csv.writer(f)
     cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1', 'mcc'])
     for dimred, (X_train, Y_train, X_test, Y_test) in inputs.items():
@@ -77,7 +77,7 @@ def main():
   Y_test_raw = test.values[:,-1]
 
   inputs = dr.dimentional_reductions(X_train_raw, X_test_raw, Y_train_raw, Y_test_raw)
-  with open('nsl-multiclass-results.csv', 'wt') as f:
+  with open('nsl-multiclass-results-no-nn.csv', 'wt') as f:
     cw = csv.writer(f)
     cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1', 'mcc'])
     for dimred, (X_train, Y_train, X_test, Y_test) in inputs.items():

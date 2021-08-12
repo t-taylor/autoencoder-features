@@ -56,7 +56,7 @@ def generate_models(X_train, Y_train):
   outputs = outputs | make_dtrees(X_train, Y_train)
 
   # Neural Networks
-  outputs = outputs | make_neural_nets(X_train, Y_train)
+  #outputs = outputs | make_neural_nets(X_train, Y_train)
 
   return outputs
 
