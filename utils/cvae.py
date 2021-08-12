@@ -84,33 +84,37 @@ class CVAE(tf.keras.Model):
     gradients = tape.gradient(loss, self.trainable_variables)
     self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
 
-  def train_model(self, X_train, latent_dim, epochs):
-    for epoch in range(epochs):
-      start_time = time.time()
-      print('Starting epoch', epoch)
-      X_train_batched = batch(X_train, 128)
-      for x in X_train_batched:
-        self.train_step(x)
-      end_time = time.time()
-      loss = tf.keras.metrics.Mean()
-      for test_x in X_train_batched:
-        vecloss = self.compute_loss(test_x)
-        loss(vecloss)
-      elbo = -loss.result()
-      print('Epoch: {}, Test set ELBO: {}, time elapse for current epoch: {}'
-            .format(epoch, elbo, end_time - start_time))
+  def train_model(self, X_train, latent_dim):
+    models = {}
+    for i in range(5):
+      print('starting cvae', i)
+      for epoch in range(100):
+        start_time = time.time()
+        X_train_batched = batch(X_train, 128)
+        for x in X_train_batched:
+          self.train_step(x)
+        end_time = time.time()
+        loss = tf.keras.metrics.Mean()
+        for test_x in X_train_batched:
+          vecloss = self.compute_loss(test_x)
+          loss(vecloss)
+        elbo = -loss.result()
+      models[i] = tf.keras.models.clone_model(self.encoder)
+    return models
 
-
-def apply_cvae(X_train, X_test, latent_dim=5, epochs=100):
+def apply_cvae(X_train, X_test, latent_dim=5):
+  output = {}
   # Get model
   model = CVAE(latent_dim, X_train.shape[1])
   # Train model on X_train
-  model.train_model(X_train, latent_dim, epochs)
+  models = model.train_model(X_train, latent_dim)
   # Apply encoder on X_train && X_test
-  X_train_cvae, _ = model.encode(X_train)
-  X_test_cvae, _ = model.encode(X_test)
+  for epoc, m in models.items():
+    X_train_cvae, _ = tf.split(m(X_train), num_or_size_splits=2, axis=1)
+    X_test_cvae, _ = tf.split(m(X_test), num_or_size_splits=2, axis=1)
+    output[epoc] = (X_train_cvae.numpy(), X_test_cvae.numpy())
 
-  return (X_train_cvae.numpy(), X_test_cvae.numpy())
+  return output
 
 class cvae_test(ut.TestCase):
 
