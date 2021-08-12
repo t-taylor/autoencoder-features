@@ -54,7 +54,7 @@ def main():
   Y_test_raw = test.values[:,-1]
 
   inputs = dr.dimentional_reductions(X_train_raw, X_test_raw, Y_train_raw, Y_test_raw)
-  with open('nsl-binary-results-no-nn.csv', 'wt') as f:
+  with open('nsl-binary-results.csv', 'wt') as f:
     cw = csv.writer(f)
     cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1', 'mcc'])
     for dimred, (X_train, Y_train, X_test, Y_test) in inputs.items():
@@ -77,7 +77,7 @@ def main():
   Y_test_raw = test.values[:,-1]
 
   inputs = dr.dimentional_reductions(X_train_raw, X_test_raw, Y_train_raw, Y_test_raw)
-  with open('nsl-multiclass-results-no-nn.csv', 'wt') as f:
+  with open('nsl-multiclass-results.csv', 'wt') as f:
     cw = csv.writer(f)
     cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1', 'mcc'])
     for dimred, (X_train, Y_train, X_test, Y_test) in inputs.items():
