@@ -17,7 +17,7 @@ def create_models(X_train, X_test, Y_train, Y_test):
 
   print('Variational autoencoder')
   for lf in range(2, 15):
-    for e, model in cvae.create_models(X_train, X_test, latent_dim=lf)
+    for e, model in cvae.create_models(X_train, X_test, latent_dim=lf):
       print('dm1', e, lf)
       yield 'autoencoder_' + str(e) + '_' + str(lf), model
 

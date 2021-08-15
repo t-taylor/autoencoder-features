@@ -32,7 +32,7 @@ def save_models():
   X_test_raw = np.asarray(test.values[:,0:-1]).astype(np.float32)
   Y_test_raw = test.values[:,-1]
 
-  for dimred, model in dr.create_models():
+  for dimred, model in dr.create_models(X_train_raw, X_test_raw, Y_train_raw, Y_test_raw):
     print(dimred)
     model.save('models/nsl_bin/' + dimred)
 
@@ -45,7 +45,7 @@ def save_models():
   X_test_raw = np.asarray(test.values[:,0:-1]).astype(np.float32)
   Y_test_raw = test.values[:,-1]
 
-  for dimred, model in dr.create_models():
+  for dimred, model in dr.create_models(X_train_raw, X_test_raw, Y_train_raw, Y_test_raw):
     print(dimred)
     model.save('models/nsl_multi/' + dimred)
 

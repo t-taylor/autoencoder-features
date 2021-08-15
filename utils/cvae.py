@@ -102,7 +102,7 @@ class CVAE(tf.keras.Model):
       models[i] = tf.keras.models.clone_model(self.encoder)
     return models
 
-def create_models(X_train, X_test, latent_dim=5)
+def create_models(X_train, X_test, latent_dim=5):
   # Get model
   model = CVAE(latent_dim, X_train.shape[1])
   # Train model on X_train
