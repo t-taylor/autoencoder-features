@@ -24,6 +24,7 @@ def main():
   save_models()
 
 def save_models():
+
   print('Start nsl binary')
 
   (train, test) = multi_to_bin(nsl_multiclass())

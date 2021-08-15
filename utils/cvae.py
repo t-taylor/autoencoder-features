@@ -6,18 +6,20 @@ import tensorflow as tf
 import time
 import unittest as ut
 
+@tf.function(experimental_follow_type_hints=True)
 def batch(d, bin_size):
-  data = d.copy()
-  np.random.shuffle(data)
-  data = np.array_split(data, math.ceil(len(data)/bin_size))
-  return np.array(data) # TODO read more https://github.com/DHI/mikeio/issues/88
+  data = tf.random.shuffle(d)[:d.shape[0] - (d.shape[0] % bin_size)]
+  data = tf.split(data, num_or_size_splits=bin_size)
+  return data
 
+@tf.function(experimental_follow_type_hints=True)
 def log_normal_pdf(sample, mean, logvar, raxis=1):
   log2pi = tf.math.log(2. * np.pi)
   return tf.reduce_sum(
       -.5 * ((sample - mean) ** 2. * tf.exp(-logvar) + logvar + log2pi),
       axis=raxis)
 
+@tf.function(experimental_follow_type_hints=True)
 def reparameterize(mean, logvar):
   eps = tf.random.normal(shape=mean.shape)
   return eps * tf.exp(logvar * .5) + mean
@@ -44,17 +46,19 @@ class CVAE(tf.keras.Model):
        # No activation
        tf.keras.layers.Dense(feature_dim)])
 
-  @tf.function
+  @tf.function(experimental_follow_type_hints=True)
   def sample(self, eps=None):
     if eps is None:
       eps = tf.random.normal(shape=(100, self.latent_dim))
     return self.decode(eps, apply_sigmoid=True)
 
+  @tf.function(experimental_follow_type_hints=True)
   def encode(self, x):
     pred = self.encoder(x)
     mean, logvar = tf.split(pred, num_or_size_splits=2, axis=1)
     return mean, logvar
 
+  @tf.function(experimental_follow_type_hints=True)
   def decode(self, z, apply_sigmoid=False):
     logits = self.decoder(z)
     if apply_sigmoid:
@@ -62,6 +66,7 @@ class CVAE(tf.keras.Model):
       return probs
     return logits
 
+  @tf.function(experimental_follow_type_hints=True)
   def compute_loss(self, x):
     mean, logvar = self.encode(x)
     z = reparameterize(mean, logvar)
@@ -72,18 +77,14 @@ class CVAE(tf.keras.Model):
     logqz_x = log_normal_pdf(z, mean, logvar)
     return -tf.reduce_mean(logpx_z + logpz - logqz_x)
 
-  @tf.function ## included inside class because https://github.com/tensorflow/tensorflow/issues/27120
+  @tf.function(experimental_follow_type_hints=True) ## included inside class because https://github.com/tensorflow/tensorflow/issues/27120
   def train_step(self, x):
-    """Executes one training step and returns the loss.
-
-    This function computes the loss and gradients, and uses the latter to
-    update the model's parameters.
-    """
     with tf.GradientTape() as tape:
       loss = self.compute_loss(x)
     gradients = tape.gradient(loss, self.trainable_variables)
     self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
 
+  @tf.function(experimental_follow_type_hints=True)
   def train_model(self, X_train, latent_dim):
     models = {}
     for i in range(5):
@@ -91,8 +92,9 @@ class CVAE(tf.keras.Model):
       for epoch in range(100):
         start_time = time.time()
         X_train_batched = batch(X_train, 128)
-        for x in X_train_batched:
-          self.train_step(x)
+
+        tf.vectorized_map(lambda x: self.train_step(x), X_train_batched)
+
         end_time = time.time()
         loss = tf.keras.metrics.Mean()
         for test_x in X_train_batched:
@@ -106,7 +108,7 @@ def create_models(X_train, X_test, latent_dim=5):
   # Get model
   model = CVAE(latent_dim, X_train.shape[1])
   # Train model on X_train
-  models = model.train_model(X_train, latent_dim)
+  models = model.train_model(tf.convert_to_tensor(X_train), latent_dim)
   # Apply encoder on X_train && X_test
   for epoc, m in models.items():
     yield epoc, m
