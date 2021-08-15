@@ -102,6 +102,17 @@ class CVAE(tf.keras.Model):
       models[i] = tf.keras.models.clone_model(self.encoder)
     return models
 
+def create_models(X_train, X_test, latent_dim=5)
+  # Get model
+  model = CVAE(latent_dim, X_train.shape[1])
+  # Train model on X_train
+  models = model.train_model(X_train, latent_dim)
+  # Apply encoder on X_train && X_test
+  for epoc, m in models.items():
+    yield epoc, m
+
+  return output
+
 def apply_cvae(X_train, X_test, latent_dim=5):
   output = {}
   # Get model

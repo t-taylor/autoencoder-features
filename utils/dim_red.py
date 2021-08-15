@@ -13,6 +13,30 @@ def pca(X_train, X_test, n_components):
 
   return (X_train_pca, X_test_pca)
 
+def create_models(X_train, X_test, Y_train, Y_test):
+
+  print('Variational autoencoder')
+  for lf in range(2, 15):
+    for e, model in cvae.create_models(X_train, X_test, latent_dim=lf)
+      print('dm1', e, lf)
+      yield 'autoencoder_' + str(e) + '_' + str(lf), model
+
+  print('PCA with mle')
+  (X_train_pca_mle, X_test_pca_mle) = pca(X_train, X_test, 'mle')
+  for lf in range(2, 15):
+    for e, model in cvae.create_models(X_train_pca_mle, X_test_pca_mle, latent_dim=lf):
+      print('dm2', e, lf)
+      yield 'pca_with_varthresh_mle_autoencoder_' + str(e) + '_' + str(lf), model
+
+  print('Principal component analysis with variance threshold')
+  for n in range(90,100):
+    thresh = n / 100
+    (X_train_pca_thresh, X_test_pca_thresh) = pca(X_train, X_test, thresh)
+    for lf in range(2, 15):
+      for e, model in cvae.create_models(X_train_pca_thresh, X_test_pca_thresh, latent_dim=lf):
+        print('dm3', e, lf, n)
+        yield 'pca_with_varthresh_' + str(thresh) + '_autoencoder_' + str(e) + '_' + str(lf), model
+
 def dimentional_reductions(X_train, X_test, Y_train, Y_test):
 
   outputs = {}

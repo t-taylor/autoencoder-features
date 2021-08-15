@@ -21,6 +21,35 @@ import utils.eval as ev
 import utils.ml as ml
 
 def main():
+  save_models()
+
+def save_models():
+  print('Start nsl binary')
+
+  (train, test) = multi_to_bin(nsl_multiclass())
+  X_train_raw = np.asarray(train.values[:,0:-1]).astype(np.float32)
+  Y_train_raw = train.values[:,-1]
+  X_test_raw = np.asarray(test.values[:,0:-1]).astype(np.float32)
+  Y_test_raw = test.values[:,-1]
+
+  for dimred, model in dr.create_models():
+    print(dimred)
+    model.save('models/nsl_bin/' + dimred)
+
+
+  print('Start nsl multiclass')
+
+  (train, test) = nsl_multiclass()
+  X_train_raw = np.asarray(train.values[:,0:-1]).astype(np.float32)
+  Y_train_raw = train.values[:,-1]
+  X_test_raw = np.asarray(test.values[:,0:-1]).astype(np.float32)
+  Y_test_raw = test.values[:,-1]
+
+  for dimred, model in dr.create_models():
+    print(dimred)
+    model.save('models/nsl_multi/' + dimred)
+
+def full_run():
 
   ## Malware Multiclass
 
