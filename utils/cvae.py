@@ -111,8 +111,6 @@ def create_models(X_train, X_test, latent_dim=5):
   for epoc, m in models.items():
     yield epoc, m
 
-  return output
-
 def apply_cvae(X_train, X_test, latent_dim=5):
   output = {}
   # Get model
