@@ -35,7 +35,7 @@ class Dense():
     self.model.add(tf.keras.layers.Dense(outdim, activation='softmax'))
     self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-    self.model.fit(X, dummy_y, batch_size=128, epochs=10)
+    self.model.fit(X, dummy_y, batch_size=128, epochs=200)
     self.model.summary()
 
   def predict(self, x):
