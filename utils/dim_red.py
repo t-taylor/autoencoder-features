@@ -1,5 +1,6 @@
 import tensorflow as tf
 import unittest as ut
+import os
 import numpy as np
 import utils.cvae as cvae
 from sklearn import decomposition, preprocessing
@@ -84,13 +85,13 @@ def dimentional_reductions_from_saves(X_train, X_test, path):
   print('PCA with mle')
   # https://tminka.github.io/papers/pca/minka-pca.pdf
   (X_train_pca_mle, X_test_pca_mle) = pca(X_train, X_test, 'mle')
-  yield 'pca_with_mle', (X_train_pca_mle, Y_train, X_test_pca_mle, Y_test)
+  yield 'pca_with_mle', (X_train_pca_mle, X_test_pca_mle)
 
   print('Principal component analysis with variance threshold')
   for n in range(90,100):
     thresh = n / 100
     (X_train_pca_thresh, X_test_pca_thresh) = pca(X_train, X_test, thresh)
-    yield 'pca_with_varthresh_' + str(thresh), (X_train_pca_thresh, Y_train, X_test_pca_thresh, Y_test)
+    yield 'pca_with_varthresh_' + str(thresh), (X_train_pca_thresh, X_test_pca_thresh)
 
 
 class dimentional_reductions_test(ut.TestCase):
