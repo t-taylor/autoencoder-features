@@ -49,6 +49,28 @@ def save_models():
     print(dimred)
     model.save('models/nsl_multi/' + dimred)
 
+def run_saves():
+  print('Start nsl binary')
+
+  (train, test) = multi_to_bin(nsl_multiclass())
+  X_train_raw = np.asarray(train.values[:,0:-1]).astype(np.float32)
+  Y_train_raw = train.values[:,-1]
+  X_test_raw = np.asarray(test.values[:,0:-1]).astype(np.float32)
+  Y_test_raw = test.values[:,-1]
+
+  inputs = dr.dimentional_reductions_from_saves(X_train_raw, X_test_raw, 'models/nsl_bin/')
+  with open('nsl-binary-results.csv', 'a') as f:
+    cw = csv.writer(f)
+    cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1', 'mcc'])
+    for dimred, (X_train, Y_train, X_test, Y_test) in inputs:
+      models = ml.generate_models(X_train, Y_train)
+
+      for modeltype, model in models.items():
+        metrics = ev.get_binary_metrics(model, X_test, Y_test)
+
+        print(dimred, modeltype, metrics)
+        cw.writerow([dimred, modeltype, metrics['accuracy'], metrics['precision'], metrics['recall'], metrics['f1'], metrics['mcc']])
+
 def full_run():
 
   ## Malware Multiclass
