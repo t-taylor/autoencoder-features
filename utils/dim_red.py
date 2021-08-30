@@ -31,7 +31,7 @@ def create_models(X_train, X_test, Y_train, Y_test):
       yield 'pca_with_varthresh_mle_autoencoder_' + str(e) + '_' + str(lf), model
 
   print('Principal component analysis with variance threshold')
-  for n in range(90,100):
+  for n in range(98,100):
     thresh = n / 100
     (X_train_pca_thresh, X_test_pca_thresh) = pca(X_train, X_test, thresh)
     for lf in range(2, 15):
@@ -75,23 +75,35 @@ def dimentional_reductions(X_train, X_test, Y_train, Y_test):
   return outputs
 
 def dimentional_reductions_from_saves(X_train, X_test, path):
-  for model in os.listdir(path):
-    print(model)
-    encoder = tf.keras.models.load_model(path + model)
-    X_train_new, _ = tf.split(encoder(X_train), num_or_size_splits=2, axis=1)
-    X_test_new, _ = tf.split(encoder(X_test), num_or_size_splits=2, axis=1)
-    yield model, (X_train_new.numpy(), X_test_new.numpy())
+
+  print('Variational autoencoder')
+  for lf in range(2, 15):
+    for e in range(5):
+      drtype = 'autoencoder_' + str(e) + '_' + str(lf)
+      model = tf.keras.models.load_model(path + drtype)
+      print(drtype)
+      yield drtype, cvae.enc_from_model(model, X_train, X_test)
 
   print('PCA with mle')
-  # https://tminka.github.io/papers/pca/minka-pca.pdf
   (X_train_pca_mle, X_test_pca_mle) = pca(X_train, X_test, 'mle')
-  yield 'pca_with_mle', (X_train_pca_mle, X_test_pca_mle)
+  for lf in range(2, 15):
+    for e in range(5):
+      drtype = 'pca_with_varthresh_mle_autoencoder_' + str(e) + '_' + str(lf)
+      model = tf.keras.models.load_model(path + drtype)
+      print(drtype)
+      yield drtype, cvae.enc_from_model(model, X_train_pca_mle, X_test_pca_mle)
+
 
   print('Principal component analysis with variance threshold')
   for n in range(90,100):
     thresh = n / 100
     (X_train_pca_thresh, X_test_pca_thresh) = pca(X_train, X_test, thresh)
-    yield 'pca_with_varthresh_' + str(thresh), (X_train_pca_thresh, X_test_pca_thresh)
+    for lf in range(2, 15):
+      for e in range(5):
+        drtype = 'pca_with_varthresh_' + str(thresh) + '_autoencoder_' + str(e) + '_' + str(lf)
+        model = tf.keras.models.load_model(path + drtype)
+        print(drtype)
+        yield drtype, cvae.enc_from_model(model, X_train_pca_thresh, X_test_pca_thresh)
 
 
 class dimentional_reductions_test(ut.TestCase):

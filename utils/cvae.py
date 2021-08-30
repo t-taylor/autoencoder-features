@@ -111,6 +111,11 @@ def create_models(X_train, X_test, latent_dim=5):
   for epoc, m in models.items():
     yield epoc, m
 
+def enc_from_model(encoder, X_train, X_test):
+  X_train_new, _ = tf.split(encoder(X_train), num_or_size_splits=2, axis=1)
+  X_test_new, _ = tf.split(encoder(X_test), num_or_size_splits=2, axis=1)
+  return X_train_new.numpy(), X_test_new.numpy()
+
 def apply_cvae(X_train, X_test, latent_dim=5):
   output = {}
   # Get model
