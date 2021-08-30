@@ -25,6 +25,19 @@ _txtheaders =['duration', 'protocol_type', 'service', 'flag', 'src_bytes',
               'dst_host_serror_rate', 'dst_host_srv_serror_rate',
               'dst_host_rerror_rate', 'dst_host_srv_rerror_rate', 'class',
               'difficulty']
+_metadict = {'apache2':'dos', 'back':'dos', 'buffer_overflow':'u2r',
+             'ftp_write':'r2l', 'guess_passwd':'r2l', 'httptunnel':'r2l',
+             'imap':'r2l', 'ipsweep':'probe', 'land':'dos', 'loadmodule':'u2r',
+             'mailbomb':'dos', 'mscan':'probe', 'multihop':'r2l',
+             'named':'r2l', 'neptune':'dos', 'nmap':'probe', 'normal':
+             'normal', 'perl':'u2r', 'phf':'r2l', 'pod':'dos',
+             'portsweep':'probe', 'processtable':'dos', 'ps':'u2r',
+             'rootkit':'u2r', 'saint':'probe', 'satan':'probe',
+             'sendmail':'r2l', 'smurf':'dos', 'snmpgetattack':'r2l',
+             'snmpguess':'r2l', 'spy':'r2l', 'sqlattack':'u2r',
+             'teardrop':'dos', 'udpstorm':'dos', 'warezmaster':'r2l',
+             'warezclient':'r2l', 'worm':'dos', 'xlock':'r2l', 'xsnoop':'r2l',
+             'xterm':'u2r'}
 
 def main():
     nsl_explore()
@@ -112,6 +125,16 @@ def multi_to_bin(data):
     train['class'] = train['class'].map(lambda x: 1 if x not in 'normal' else 0)
     test['class'] = test['class'].map(lambda x: 1 if x not in 'normal' else 0)
     return train, test
+
+def multi_to_meta(data):
+    train, test = data
+    train = train.copy()
+    test = test.copy()
+
+    train['class'] = train['class'].map(lambda x: _metadict[x])
+    test['class'] = test['class'].map(lambda x: _metadict[x])
+    return train, test
+
 
 def nsl_explore():
     (train, test) = nsl_multiclass()

@@ -9,7 +9,7 @@
 # * Step 2, Choice of ML algorithm
 # * Step 3, Calculate metrics
 
-from part1 import nsl_multiclass, malware_df, multi_to_bin
+from part1 import nsl_multiclass, malware_df, multi_to_bin, multi_to_meta
 from sklearn.model_selection import KFold, cross_val_score, train_test_split
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.utils import to_categorical
@@ -39,7 +39,7 @@ def save_models():
 
   print('Start nsl multiclass')
 
-  (train, test) = nsl_multiclass()
+  (train, test) = multi_to_meta(nsl_multiclass())
   X_train_raw = np.asarray(train.values[:,0:-1]).astype(np.float32)
   Y_train_raw = train.values[:,-1]
   X_test_raw = np.asarray(test.values[:,0:-1]).astype(np.float32)
