@@ -42,7 +42,7 @@ def save_models():
 
   print('Start nsl multiclass')
 
-  (train, test) = nsl_multiclass()
+  (train, test) = multi_to_meta(nsl_multiclass())
   X_train_raw = np.asarray(train.values[:,0:-1]).astype(np.float32)
   Y_train_raw = train.values[:,-1]
   X_test_raw = np.asarray(test.values[:,0:-1]).astype(np.float32)
