@@ -23,6 +23,8 @@ class Dense():
     dummy_y = to_categorical(encoded_y)
     (_, outdim) = dummy_y.shape
 
+    print('indim', indim, 'outdim', outdim)
+
     self.outdim = outdim
     self.model = tf.keras.Sequential()
     self.model.add(tf.keras.layers.InputLayer(input_shape=indim))
@@ -35,7 +37,7 @@ class Dense():
     self.model.add(tf.keras.layers.Dense(outdim, activation='softmax'))
     self.model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-    self.model.fit(X, dummy_y, batch_size=128, epochs=200)
+    self.model.fit(X, dummy_y, batch_size=128, epochs=20)
     self.model.summary()
 
   def predict(self, x):

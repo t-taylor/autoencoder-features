@@ -17,6 +17,7 @@ def get_binary_metrics(model, X_test, Y_test):
     output = {}
 
     Y_pred = model.predict(X_test)
+
     output['accuracy'] = met.accuracy_score(Y_test, Y_pred)
     output['precision'] = met.precision_score(Y_test, Y_pred)
     output['recall'] = met.recall_score(Y_test, Y_pred)

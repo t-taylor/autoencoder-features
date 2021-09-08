@@ -12,11 +12,11 @@ def make_bayesian(X_train, Y_train):
   return gnb.fit(X_train, Y_train)
 
 def make_svms(X_train, Y_train):
-  kerns = ['poly', 'rbf']
+  kerns = ['rbf']
   out = {}
   for k in kerns:
     print('creating svm', k)
-    msvm = svm.SVC(kernel=k)
+    msvm =  svm.SVC(kernel=k, gamma='auto') if kerns == 'poly' else svm.SVC(kernel=k)
     out[k] = msvm.fit(X_train, Y_train)
   return out
 
@@ -46,14 +46,14 @@ def make_neural_nets(X_train, Y_train):
 def generate_models(X_train, Y_train):
   outputs = {}
   # Gaussian naive bayes
-  outputs['bayesian'] = make_bayesian(X_train, Y_train)
+  #outputs['bayesian'] = make_bayesian(X_train, Y_train)
 
   # Support vector machine
-  for kern, m in make_svms(X_train, Y_train).items():
-    outputs['svm_' + str(kern)] = m
+  #for kern, m in make_svms(X_train, Y_train).items():
+  #  outputs['svm_' + str(kern)] = m
 
   ## Decision Trees
-  outputs = outputs | make_dtrees(X_train, Y_train)
+  #outputs = outputs | make_dtrees(X_train, Y_train)
 
   # Neural Networks
   outputs = outputs | make_neural_nets(X_train, Y_train)

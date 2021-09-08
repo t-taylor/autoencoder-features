@@ -76,30 +76,46 @@ def dimentional_reductions(X_train, X_test, Y_train, Y_test):
 
 def dimentional_reductions_from_saves(X_train, X_test, path):
 
-  print('Variational autoencoder')
-  for lf in range(2, 15):
-    for e in range(5):
-      drtype = 'autoencoder_' + str(e) + '_' + str(lf)
-      model = tf.keras.models.load_model(path + drtype)
-      print(drtype)
-      yield drtype, cvae.enc_from_model(model, X_train, X_test)
+  #drtype = 'autoencoder_' + str(1) + '_' + str(2)
+  #model = tf.keras.models.load_model(path + drtype)
+  #yield drtype, cvae.enc_from_model(model, X_train, X_test)
 
-  print('PCA with mle')
-  (X_train_pca_mle, X_test_pca_mle) = pca(X_train, X_test, 'mle')
-  yield 'pca_with_mle', (X_train_pca_mle, X_test_pca_mle)
-  for lf in range(2, 15):
-    for e in range(5):
-      drtype = 'pca_with_varthresh_mle_autoencoder_' + str(e) + '_' + str(lf)
-      model = tf.keras.models.load_model(path + drtype)
-      print(drtype)
-      yield drtype, cvae.enc_from_model(model, X_train_pca_mle, X_test_pca_mle)
+  #yield 'none', (X_train, X_test)
+
+  #print('Variational autoencoder')
+  #for lf in range(2, 15):
+  #  for e in range(5):
+  #    drtype = 'autoencoder_' + str(e) + '_' + str(lf)
+  #    model = tf.keras.models.load_model(path + drtype)
+  #    print(drtype)
+  #    yield drtype, cvae.enc_from_model(model, X_train, X_test)
+
+  #print('PCA with mle')
+  #(X_train_pca_mle, X_test_pca_mle) = pca(X_train, X_test, 'mle')
+  #yield 'pca_with_mle', (X_train_pca_mle, X_test_pca_mle)
+  #for lf in range(2, 15):
+  #  for e in range(5):
+  #    drtype = 'pca_with_varthresh_mle_autoencoder_' + str(e) + '_' + str(lf)
+  #    model = tf.keras.models.load_model(path + drtype)
+  #    print(drtype)
+  #    yield drtype, cvae.enc_from_model(model, X_train_pca_mle, X_test_pca_mle)
 
 
   print('Principal component analysis with variance threshold')
-  for n in range(90,100):
+  for n in range(90,91):
     thresh = n / 100
     (X_train_pca_thresh, X_test_pca_thresh) = pca(X_train, X_test, thresh)
-    yield 'pca_with_varthresh_' + str(thresh), (X_train_pca_thresh, Y_train, X_test_pca_thresh, Y_test)
+    for lf in range(2, 15):
+      for e in range(5):
+        drtype = 'pca_with_varthresh_' + str(thresh) + '_autoencoder_' + str(e) + '_' + str(lf)
+        model = tf.keras.models.load_model(path + drtype)
+        print(drtype)
+        yield drtype, cvae.enc_from_model(model, X_train_pca_thresh, X_test_pca_thresh)
+
+  for n in range(98,100):
+    thresh = n / 100
+    (X_train_pca_thresh, X_test_pca_thresh) = pca(X_train, X_test, thresh)
+    yield 'pca_with_varthresh_' + str(thresh), (X_train_pca_thresh, X_test_pca_thresh)
     for lf in range(2, 15):
       for e in range(5):
         drtype = 'pca_with_varthresh_' + str(thresh) + '_autoencoder_' + str(e) + '_' + str(lf)

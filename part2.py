@@ -8,8 +8,10 @@
 # * Step 1 dimensional reduction, Autoecoder, PCA with Autoecoder, PCA with variance threshold, or Nothing
 # * Step 2, Choice of ML algorithm
 # * Step 3, Calculate metrics
+import os
+#os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
-from part1 import nsl_multiclass, malware_df, multi_to_bin
+from part1 import nsl_multiclass, malware_df, multi_to_bin, multi_to_meta
 from sklearn.model_selection import KFold, cross_val_score, train_test_split
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.utils import to_categorical
@@ -21,6 +23,7 @@ import utils.eval as ev
 import utils.ml as ml
 
 def main():
+
   run_saves()
 
 def save_models():
@@ -51,47 +54,47 @@ def save_models():
 
 def run_saves():
 
-  print('Start nsl binary')
+  #print('Start nsl binary')
 
-  (train, test) = multi_to_bin(nsl_multiclass())
+  #(train, test) = multi_to_bin(nsl_multiclass())
+  #X_train_raw = np.asarray(train.values[:,0:-1]).astype(np.float32)
+  #Y_train = train.values[:,-1]
+  #X_test_raw = np.asarray(test.values[:,0:-1]).astype(np.float32)
+  #Y_test = test.values[:,-1]
+
+  #inputs = dr.dimentional_reductions_from_saves(X_train_raw, X_test_raw, 'models/nsl_bin/')
+  #with open('nns-nsl-bin.csv', 'a', 1) as f:
+  #  cw = csv.writer(f)
+  #  #cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1', 'mcc'])
+  #  for dimred, (X_train, X_test) in inputs:
+  #    models = ml.generate_models(X_train, Y_train)
+
+  #    for modeltype, model in models.items():
+  #      metrics = ev.get_binary_metrics(model, X_test, Y_test)
+
+  #      print(dimred, modeltype, metrics)
+  #      cw.writerow([dimred, modeltype, metrics['accuracy'], metrics['precision'], metrics['recall'], metrics['f1'], metrics['mcc']])
+
+  print('Start nsl multiclass')
+
+  (train, test) = multi_to_meta(nsl_multiclass())
   X_train_raw = np.asarray(train.values[:,0:-1]).astype(np.float32)
   Y_train = train.values[:,-1]
   X_test_raw = np.asarray(test.values[:,0:-1]).astype(np.float32)
   Y_test = test.values[:,-1]
 
   inputs = dr.dimentional_reductions_from_saves(X_train_raw, X_test_raw, 'models/nsl_multi/')
-  with open('nsl-binary-results.csv', 'a') as f:
+  with open('nsl-multiclass-results-nns.csv', 'a') as f:
     cw = csv.writer(f)
     cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1', 'mcc'])
     for dimred, (X_train, X_test) in inputs:
       models = ml.generate_models(X_train, Y_train)
 
       for modeltype, model in models.items():
-        metrics = ev.get_binary_metrics(model, X_test, Y_test)
+        metrics = ev.get_multiclass_metrics(model, X_test, Y_test)
 
         print(dimred, modeltype, metrics)
         cw.writerow([dimred, modeltype, metrics['accuracy'], metrics['precision'], metrics['recall'], metrics['f1'], metrics['mcc']])
-
-  #print('Start nsl multiclass')
-
-  #(train, test) = nsl_multiclass()
-  #X_train_raw = np.asarray(train.values[:,0:-1]).astype(np.float32)
-  #Y_train = train.values[:,-1]
-  #X_test_raw = np.asarray(test.values[:,0:-1]).astype(np.float32)
-  #Y_test = test.values[:,-1]
-
-  #inputs = dr.dimentional_reductions_from_saves(X_train_raw, X_test_raw, 'models/nsl_multi/')
-  #with open('nsl-multiclass-results.csv', 'a') as f:
-  #  cw = csv.writer(f)
-  #  cw.writerow(['dimred', 'modeltype', 'accuracy', 'precision', 'recall', 'f1', 'mcc'])
-  #  for dimred, (X_train, X_test) in inputs:
-  #    models = ml.generate_models(X_train, Y_train)
-
-  #    for modeltype, model in models.items():
-  #      metrics = ev.get_multiclass_metrics(model, X_test, Y_test)
-
-  #      print(dimred, modeltype, metrics)
-  #      cw.writerow([dimred, modeltype, metrics['accuracy'], metrics['precision'], metrics['recall'], metrics['f1'], metrics['mcc']])
 
 def full_run():
 
